@@ -55,6 +55,11 @@ public class QuestionBank implements Serializable {
     private Date updateTime;
 
     /**
+     * 题库 id
+     */
+    private Long questionBankId;
+
+    /**
      * 是否删除
      */
     @TableLogic
