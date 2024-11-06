@@ -1,10 +1,10 @@
 package com.muxue.interviewquestion.model.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
+import lombok.Data;
 
 import java.io.Serializable;
 import java.util.Date;
-import lombok.Data;
 
 /**
  * 题库
@@ -53,11 +53,6 @@ public class QuestionBank implements Serializable {
      * 更新时间
      */
     private Date updateTime;
-
-    /**
-     * 题库 id
-     */
-    private Long questionBankId;
 
     /**
      * 是否删除

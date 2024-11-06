@@ -1,7 +1,9 @@
 package com.muxue.interviewquestion.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.muxue.interviewquestion.common.ErrorCode;
@@ -10,9 +12,11 @@ import com.muxue.interviewquestion.exception.ThrowUtils;
 import com.muxue.interviewquestion.mapper.QuestionMapper;
 import com.muxue.interviewquestion.model.dto.question.QuestionQueryRequest;
 import com.muxue.interviewquestion.model.entity.Question;
+import com.muxue.interviewquestion.model.entity.QuestionBankQuestion;
 import com.muxue.interviewquestion.model.entity.User;
 import com.muxue.interviewquestion.model.vo.QuestionVO;
 import com.muxue.interviewquestion.model.vo.UserVO;
+import com.muxue.interviewquestion.service.QuestionBankQuestionService;
 import com.muxue.interviewquestion.service.QuestionService;
 import com.muxue.interviewquestion.service.UserService;
 import com.muxue.interviewquestion.utils.SqlUtils;
@@ -40,6 +44,9 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
 
     @Resource
     private UserService userService;
+
+    @Resource
+    private QuestionBankQuestionService questionBankQuestionService;
 
     /**
      * 校验数据
@@ -180,5 +187,32 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
         questionVOPage.setRecords(questionVOList);
         return questionVOPage;
     }
+
+    /**
+     * 分页获取题目封装
+     *
+     * @param questionQueryRequest
+     * @return
+     */
+    @Override
+    public Page<Question> listQuestionByPage(QuestionQueryRequest questionQueryRequest) {
+        long current = questionQueryRequest.getCurrent();
+        long size = questionQueryRequest.getPageSize();
+        QueryWrapper<Question> queryWrapper = this.getQueryWrapper(questionQueryRequest);
+        Long questionBankId = questionQueryRequest.getQuestionBankId();
+        if (questionBankId != null){
+            LambdaQueryWrapper<QuestionBankQuestion> lambdaQueryWrapper = Wrappers.lambdaQuery(QuestionBankQuestion.class)
+                    .eq(QuestionBankQuestion::getQuestionBankId, questionBankId).select(QuestionBankQuestion::getQuestionId);
+            List<QuestionBankQuestion> questionBankQuestionList = questionBankQuestionService.list(lambdaQueryWrapper);
+            List<Long> questionListId = questionBankQuestionList.stream().map(QuestionBankQuestion::getQuestionId).collect(Collectors.toList());
+            if (CollUtil.isNotEmpty(questionListId)){
+                queryWrapper.in("id",questionListId);
+            }
+        }
+        // 查询数据库
+        Page<Question> questionPage = this.page(new Page<>(current, size),queryWrapper);
+        return questionPage;
+    }
+
 
 }
