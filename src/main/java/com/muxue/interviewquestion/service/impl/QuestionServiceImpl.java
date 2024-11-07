@@ -202,10 +202,11 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
         Long questionBankId = questionQueryRequest.getQuestionBankId();
         if (questionBankId != null){
             LambdaQueryWrapper<QuestionBankQuestion> lambdaQueryWrapper = Wrappers.lambdaQuery(QuestionBankQuestion.class)
-                    .eq(QuestionBankQuestion::getQuestionBankId, questionBankId).select(QuestionBankQuestion::getQuestionId);
+                    .select(QuestionBankQuestion::getQuestionId)
+                    .eq(QuestionBankQuestion::getQuestionBankId, questionBankId);
             List<QuestionBankQuestion> questionBankQuestionList = questionBankQuestionService.list(lambdaQueryWrapper);
-            List<Long> questionListId = questionBankQuestionList.stream().map(QuestionBankQuestion::getQuestionId).collect(Collectors.toList());
-            if (CollUtil.isNotEmpty(questionListId)){
+            if (CollUtil.isNotEmpty(questionBankQuestionList)){
+                Set<Long> questionListId = questionBankQuestionList.stream().map(QuestionBankQuestion::getQuestionId).collect(Collectors.toSet());
                 queryWrapper.in("id",questionListId);
             }
         }

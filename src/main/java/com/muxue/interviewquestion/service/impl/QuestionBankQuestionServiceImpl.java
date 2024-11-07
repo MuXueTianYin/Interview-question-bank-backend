@@ -9,11 +9,15 @@ import com.muxue.interviewquestion.constant.CommonConstant;
 import com.muxue.interviewquestion.exception.ThrowUtils;
 import com.muxue.interviewquestion.mapper.QuestionBankQuestionMapper;
 import com.muxue.interviewquestion.model.dto.questionBankQuestion.QuestionBankQuestionQueryRequest;
+import com.muxue.interviewquestion.model.entity.Question;
+import com.muxue.interviewquestion.model.entity.QuestionBank;
 import com.muxue.interviewquestion.model.entity.QuestionBankQuestion;
 import com.muxue.interviewquestion.model.entity.User;
 import com.muxue.interviewquestion.model.vo.QuestionBankQuestionVO;
 import com.muxue.interviewquestion.model.vo.UserVO;
 import com.muxue.interviewquestion.service.QuestionBankQuestionService;
+import com.muxue.interviewquestion.service.QuestionBankService;
+import com.muxue.interviewquestion.service.QuestionService;
 import com.muxue.interviewquestion.service.UserService;
 import com.muxue.interviewquestion.utils.SqlUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +26,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -40,6 +45,13 @@ public class QuestionBankQuestionServiceImpl extends ServiceImpl<QuestionBankQue
     @Resource
     private UserService userService;
 
+
+    @Resource
+    private QuestionService questionService;
+
+    @Resource
+    private QuestionBankService questionBankService;
+
     /**
      * 校验数据
      *
@@ -49,19 +61,17 @@ public class QuestionBankQuestionServiceImpl extends ServiceImpl<QuestionBankQue
     @Override
     public void validQuestionBankQuestion(QuestionBankQuestion questionBankQuestion, boolean add) {
         ThrowUtils.throwIf(questionBankQuestion == null, ErrorCode.PARAMS_ERROR);
-//        不需要校验
-//        // todo 从对象中取值
-//        String title = questionBankQuestion.getTitle();
-//        // 创建数据时，参数不能为空
-//        if (add) {
-//            // todo 补充校验规则
-//            ThrowUtils.throwIf(StringUtils.isBlank(title), ErrorCode.PARAMS_ERROR);
-//        }
-//        // 修改数据时，有参数则校验
-//        // todo 补充校验规则
-//        if (StringUtils.isNotBlank(title)) {
-//            ThrowUtils.throwIf(title.length() > 80, ErrorCode.PARAMS_ERROR, "标题过长");
-//        }
+//        题目和题库必须同时存在
+        Long questionId = questionBankQuestion.getQuestionId();
+        if (questionId != null) {
+            Question question = questionService.getById(questionId);
+            ThrowUtils.throwIf(question == null, ErrorCode.NOT_FOUND_ERROR, "题目不存在");
+        }
+        Long questionBankId = questionBankQuestion.getQuestionBankId();
+        if (questionBankId != null) {
+            QuestionBank questionBank = questionBankService.getById(questionBankId);
+            ThrowUtils.throwIf(questionBank == null, ErrorCode.NOT_FOUND_ERROR, "题库不存在");
+        }
     }
 
     /**

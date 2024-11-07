@@ -42,7 +42,6 @@ public class QuestionBankQuestion implements Serializable {
     /**
      * 更新时间
      */
-    @TableLogic
     private Date updateTime;
 
     @TableField(exist = false)
