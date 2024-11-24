@@ -22,6 +22,7 @@ import com.muxue.interviewquestion.service.UserService;
 import com.muxue.interviewquestion.utils.SqlUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -47,6 +48,7 @@ public class QuestionBankQuestionServiceImpl extends ServiceImpl<QuestionBankQue
 
 
     @Resource
+    @Lazy
     private QuestionService questionService;
 
     @Resource
@@ -76,7 +78,6 @@ public class QuestionBankQuestionServiceImpl extends ServiceImpl<QuestionBankQue
 
     /**
      * 获取查询条件
-     *
      * @param questionBankQuestionQueryRequest
      * @return
      */
