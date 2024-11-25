@@ -1,9 +1,10 @@
 package com.muxue.interviewquestion.model.dto.user;
 
 import com.muxue.interviewquestion.common.PageRequest;
-import java.io.Serializable;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
+import java.io.Serializable;
 
 /**
  * 用户查询请求
@@ -28,6 +29,12 @@ public class UserQueryRequest extends PageRequest implements Serializable {
      * 公众号openId
      */
     private String mpOpenId;
+
+
+    /**
+     * 用户账号
+     */
+    private String userAccount;
 
     /**
      * 用户昵称
