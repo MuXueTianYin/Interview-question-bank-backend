@@ -10,24 +10,11 @@ import com.muxue.interviewquestion.config.WxOpenConfig;
 import com.muxue.interviewquestion.constant.UserConstant;
 import com.muxue.interviewquestion.exception.BusinessException;
 import com.muxue.interviewquestion.exception.ThrowUtils;
-import com.muxue.interviewquestion.model.dto.user.UserAddRequest;
-import com.muxue.interviewquestion.model.dto.user.UserLoginRequest;
-import com.muxue.interviewquestion.model.dto.user.UserQueryRequest;
-import com.muxue.interviewquestion.model.dto.user.UserRegisterRequest;
-import com.muxue.interviewquestion.model.dto.user.UserUpdateMyRequest;
-import com.muxue.interviewquestion.model.dto.user.UserUpdateRequest;
+import com.muxue.interviewquestion.model.dto.user.*;
 import com.muxue.interviewquestion.model.entity.User;
 import com.muxue.interviewquestion.model.vo.LoginUserVO;
 import com.muxue.interviewquestion.model.vo.UserVO;
 import com.muxue.interviewquestion.service.UserService;
-
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Map;
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import lombok.extern.slf4j.Slf4j;
 import me.chanjar.weixin.common.bean.WxOAuth2UserInfo;
 import me.chanjar.weixin.common.bean.oauth2.WxOAuth2AccessToken;
@@ -35,12 +22,12 @@ import me.chanjar.weixin.mp.api.WxMpService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.util.DigestUtils;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.List;
 
 import static com.muxue.interviewquestion.service.impl.UserServiceImpl.SALT;
 
@@ -344,10 +331,10 @@ public class UserController {
      * @return 签到记录映射
      */
     @GetMapping("/get/sign_in")
-    public BaseResponse<Map<LocalDate, Boolean>> getUserSignInRecord(Integer year, HttpServletRequest request) {
+    public BaseResponse<List<Integer>> getUserSignInRecord(Integer year, HttpServletRequest request) {
         // 必须要登录才能获取
         User loginUser = userService.getLoginUser(request);
-        Map<LocalDate, Boolean> userSignInRecord = userService.getUserSignInRecord(loginUser.getId(), year);
+        List<Integer> userSignInRecord = userService.getUserSignInRecord(loginUser.getId(), year);
         return ResultUtils.success(userSignInRecord);
     }
 

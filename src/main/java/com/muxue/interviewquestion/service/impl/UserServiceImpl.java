@@ -23,15 +23,15 @@ import org.redisson.api.RedissonClient;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
+
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
-import java.time.Year;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
+import java.util.BitSet;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
+
 import static com.muxue.interviewquestion.constant.UserConstant.USER_LOGIN_STATE;
 
 /**
@@ -314,26 +314,26 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      * @return 签到记录映射
      */
     @Override
-    public Map<LocalDate, Boolean> getUserSignInRecord(long userId, Integer year) {
+    public List<Integer> getUserSignInRecord(long userId, Integer year) {
         if (year == null) {
             LocalDate date = LocalDate.now();
             year = date.getYear();
         }
         String key = RedisConstant.getUserSignInRedisKey(year, userId);
         RBitSet signInBitSet = redissonClient.getBitSet(key);
+        // 加载 BitSet 到内存中，避免后续读取时发送多次请求
+        BitSet bitSet = signInBitSet.asBitSet();
         // LinkedHashMap 保证有序
-        Map<LocalDate, Boolean> result = new LinkedHashMap<>();
-        // 获取当前年份的总天数
-        int totalDays = Year.of(year).length();
-        // 依次获取每一天的签到状态
-        for (int dayOfYear = 1; dayOfYear <= totalDays; dayOfYear++) {
-            // 获取 key：当前日期
-            LocalDate currentDate = LocalDate.ofYearDay(year, dayOfYear);
-            // 获取 value：当天是否有刷题
-            boolean hasRecord = signInBitSet.get(dayOfYear);
-            // 将结果放入 map
-            result.put(currentDate, hasRecord);
+        List<Integer> result = new ArrayList<>();
+        //从索引0开始查找下一个为1的位
+        int index = bitSet.nextSetBit(0);
+        //一直查找直到找不到返回-1
+        while (index>=0){
+            result.add(index);
+            //继续查找下一个被设置为1的位
+            index = bitSet.nextSetBit(index+1);
         }
+
         return result;
     }
 
